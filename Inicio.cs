@@ -13,6 +13,8 @@ namespace Inventarios
     public partial class Inicio : Form
     {
         public ImportarCVS importarCVS;
+        public Inventario inventario;
+        public ImportarProveedores importarProveedores;
 
         public Inicio()
         {
@@ -23,6 +25,18 @@ namespace Inventarios
         {
             importarCVS = new ImportarCVS();
             importarCVS.Show();
+        }
+
+        private void inventarioToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            inventario = new Inventario();
+            inventario.Show();
+        }
+
+        private void proveedoresToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            importarProveedores = new ImportarProveedores();
+            importarProveedores.Show();
         }
     }
 }

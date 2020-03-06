@@ -14,35 +14,32 @@ using MySql.Data.Types;
 
 namespace Inventarios
 {
-    public partial class ImportarCVS : Form
+    public partial class ImportarProveedores : Form
     {
-        MySqlConnection conexion = new MySqlConnection( "datasource=127.0.0.1;port=3306;username=root;password=;database=inventariodsa;");
+        MySqlConnection conexion = new MySqlConnection("datasource=127.0.0.1;port=3306;username=root;password=;database=inventariodsa;");
         double progreso = 0;
         int conteoProgreso = 0;
-        int progres=0;
+        int progres = 0;
 
-
-        public ImportarCVS()
+        public ImportarProveedores()
         {
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void ImportarProveedores_Load(object sender, EventArgs e)
         {
 
         }
 
-
         private void btnAbrir_Click(object sender, EventArgs e)
         {
-
             try
             {
                 //Open file dialog, allows you to select a csv file
                 using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "CSV|*.csv", ValidateNames = true, Multiselect = false })
                 {
                     if (ofd.ShowDialog() == DialogResult.OK)
-                        dataGridView1.DataSource = ReadCsv(ofd.FileName);
+                        dgvProveedor.DataSource = ReadCsv(ofd.FileName);
                 }
             }
             catch (Exception ex)
@@ -71,7 +68,7 @@ namespace Inventarios
             return dt;
         }
 
-        private void btnLimpiar_Click(object sender, EventArgs e)
+        private void btnCerrar_Click(object sender, EventArgs e)
         {
             Close();
         }
@@ -79,18 +76,16 @@ namespace Inventarios
         private void btnExportar_Click(object sender, EventArgs e)
         {
             conexion.Open();
-            MySqlCommand truncar = new MySqlCommand("TRUNCATE TABLE productos;", conexion);
-            truncar.ExecuteNonQuery();
-            //conexion.Close();
-            //conexion.Open();
-            MySqlCommand agregar = new MySqlCommand("INSERT INTO productos (codigo, codigo1, codigo2, linea, nombre, paqxcaja, unixcaja, unixdisp) VALUES (?codigo, ?codigo1, ?codigo2, ?linea, ?nombre, ?paqxcaja, ?unixcaja, ?unixdisp)", conexion);
-            
+            //MySqlCommand truncar = new MySqlCommand("TRUNCATE TABLE proveedor;", conexion);
+            //truncar.ExecuteNonQuery();
+
+            MySqlCommand agregar = new MySqlCommand("INSERT INTO proveedor (linea, nombre) VALUES (?linea, ?nombre)", conexion);
 
             int contador = 0;
-            contador = dataGridView1.RowCount;
+            contador = dgvProveedor.RowCount;
             MessageBox.Show(Convert.ToString(contador));
             progreso = contador;
-            conteoProgreso=0;
+            conteoProgreso = 0;
             progressBar1.Maximum = contador;
 
             try
@@ -98,54 +93,30 @@ namespace Inventarios
                 for (int i = 0; i < contador; i++)
                 {
                     agregar.Parameters.Clear();
-                    agregar.Parameters.Add("?codigo", MySqlDbType.Int64).Value = Convert.ToInt64(dataGridView1.Rows[i].Cells[0].Value);
-                    if(dataGridView1.Rows[i].Cells[3].Value != DBNull.Value)
-                    {
-                        agregar.Parameters.Add("?codigo1", MySqlDbType.Int64).Value = Convert.ToInt64(dataGridView1.Rows[i].Cells[3].Value);
-                    }
-                    else
-                    {
-                        agregar.Parameters.Add("?codigo1", MySqlDbType.Int64).Value = 0;
-                    }
-                    if (dataGridView1.Rows[i].Cells[4].Value != DBNull.Value)
-                    {
-                        agregar.Parameters.Add("?codigo2", MySqlDbType.Int64).Value = Convert.ToInt64(dataGridView1.Rows[i].Cells[4].Value);
-                    }
-                    else
-                    {
-                        agregar.Parameters.Add("?codigo2", MySqlDbType.Int64).Value = 0;
-                    }
-                    agregar.Parameters.Add("?linea", MySqlDbType.Int32).Value = Convert.ToInt32(dataGridView1.Rows[i].Cells[6].Value);
-                    agregar.Parameters.Add("?nombre", MySqlDbType.VarChar).Value = Convert.ToString(dataGridView1.Rows[i].Cells[7].Value);
-                    agregar.Parameters.Add("?paqxcaja", MySqlDbType.Int32).Value = Convert.ToInt32(dataGridView1.Rows[i].Cells[20].Value);
-                    agregar.Parameters.Add("?unixcaja", MySqlDbType.Int32).Value = Convert.ToInt32(dataGridView1.Rows[i].Cells[21].Value);
-                    agregar.Parameters.Add("?unixdisp", MySqlDbType.Int32).Value = Convert.ToInt32(dataGridView1.Rows[i].Cells[22].Value);
+
+                    agregar.Parameters.Add("?linea", MySqlDbType.Int32).Value = Convert.ToInt32(dgvProveedor.Rows[i].Cells[0].Value);
+                    agregar.Parameters.Add("?nombre", MySqlDbType.VarChar).Value = Convert.ToString(dgvProveedor.Rows[i].Cells[1].Value);
                     agregar.CommandTimeout = 300;
                     agregar.ExecuteNonQuery();
 
                     if (progreso >= 0 && progreso > conteoProgreso)
                     {
                         progressBar1.Value = conteoProgreso;
-                        conteoProgreso+=1;
+                        conteoProgreso += 1;
                     }
                 }
 
                 conexion.Close();
                 MessageBox.Show("Exportación exitosa!");
                 this.Close();
-
             }
-
             catch (Exception ex)
             {
                 // Mostrar cualquier error
                 MessageBox.Show(ex.Message);
                 conexion.Close();
             }
-        }
 
-        private void progressBar1_Click(object sender, EventArgs e)
-        {
 
         }
     }
